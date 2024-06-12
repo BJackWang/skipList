@@ -10,10 +10,13 @@
  *
  */
 
+#include <cmath>
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
 #include <iostream>
+
+std::string delimiter = ":";
 
 /**
  * @brief  definition of Node
@@ -123,7 +126,6 @@ public:
 
     // void dump_file();
     // void load_file();
-
 };
 
 /**
@@ -160,7 +162,7 @@ int SkipList<K, V>::get_random_level() {
  */
 template <typename K, typename V>
 Node<K, V> *SkipList<K, V>::create_node(const K key, const V value, int level) {
-    Node<K, V> *node = new Node<K, V>(K, V, level);
+    Node<K, V> *node = new Node<K, V>(key, value, level);
     return node;
 };
 
@@ -184,7 +186,7 @@ bool SkipList<K, V>::search_element(const K key) {
     node = node->forward[0];
 
     if (node != nullptr && node->get_key() == key) {
-        std::cout << "Found key: " << key << ",value: " << node->get_value << std::endl;
+        std::cout << "Found key: " << key << ",value: " << node->get_value() << std::endl;
         return false;
     }
 
@@ -299,7 +301,7 @@ template <typename K, typename V>
 void SkipList<K, V>::display_list() {
 
     const int width = (int)log10(this->SkipListLevel) + 1;
-    std::cout << "*****Skip Lists*****" << std::endl;
+    std::cout << "\n*****Skip Lists*****" << std::endl;
     for (int i = this->SkipListLevel; i >= 0; i--) {
         Node<K, V> *node = this->header->forward[i];
         std::cout << "Level " << std::left << std::setw(width) << i << ": ";
@@ -307,27 +309,20 @@ void SkipList<K, V>::display_list() {
             std::cout << "[" << node->get_key() << ", " << node->get_value() << "] -> ";
             node = node->forward[i];
         }
-        std::cout << "NULLPTR" << std::endl;
+        std::cout << "NULLPTR" << std::endl
+                  << std::endl;
     }
     return;
 }
 
 /**
- * @brief  to be called by destructor to clear skipLists recursively
+ * @brief  constuctor of SkipList
  * @note
- * @param  head: the head of SkipLists
- * @retval none
+ * @param  maxLevel: the max Level of SkipList
+ * @retval constructed SkipList
  */
 template <typename K, typename V>
-void SkipList<K, V>::clear(Node<K, V> *head) {
-    if (head->forward[0] != nullptr) {
-        clear(head->forward[0]);
-    }
-    delete (head);
-}
-
-template<typename K, typename V>
-SkipList<K,V>::SkipList(int maxLevel){
+SkipList<K, V>::SkipList(int maxLevel) {
 
     this->maxLevel = maxLevel;
     this->SkipListLevel = 0;
@@ -337,3 +332,76 @@ SkipList<K,V>::SkipList(int maxLevel){
     V v;
     this->header = new Node<K, V>(k, v, maxLevel);
 }
+
+/**
+ * @brief  to be called by destructor to clear skipLists recursively
+ * @note
+ * @param  head: the head of SkipLists
+ * @retval  none
+ */
+template <typename K, typename V>
+void SkipList<K, V>::clear(Node<K, V> *head) {
+    if (head->forward[0] != nullptr) {
+        clear(head->forward[0]);
+    }
+    delete (head);
+}
+
+/**
+ * @brief  definition of destructor
+ * @note
+ * @retval  none
+ */
+template <typename K, typename V>
+SkipList<K, V>::~SkipList() {
+
+    if (this->header->forward[0] != nullptr) {
+        clear(this->header->forward[0]);
+    }
+    delete (this->header);
+}
+
+/**
+ * @brief  judge the validaty of string
+ * @note
+ * @param  &str: to be judged str
+ * @retval  true(valid) or false(invalid)
+ */
+template <typename K, typename V>
+bool SkipList<K, V>::is_valid_string(const std::string &str) {
+
+    if (str.empty()) {
+        return false;
+    }
+    if (str.find(delimiter) == std::string::npos) {
+        return false;
+    }
+    return true;
+}
+
+/**
+ * @brief  split the string and find <K, V>
+ * @note
+ * @param  &str:to be splitted string
+ * @param  key:
+ * @param  value:
+ * @retval  pair of <K, V>
+ */
+template <typename K, typename V>
+void SkipList<K, V>::get_key_value_from_string(const std::string &str, std::string *key, std::string *value) {
+
+    if (!is_valid_string(str)) {
+        std::cout << "\nInvalid string!" << std::endl;
+        return;
+    }
+    *key = str.substr(0, str.find(delimiter));
+    *value = str.substr(str.find(delimiter) + 1, str.length());
+}
+
+// template <typename K, typename V>
+// void SkipList<K, V>::dump_file() {
+// }
+
+// template <typename K, typename V>
+// void SkipList<K, V>::load_file() {
+// }
