@@ -1,7 +1,7 @@
 #include "skiplist.h"
 #include <iostream>
 
-int main(void){
+int main(void) {
 
     SkipList<int, std::string> skipList(6);
     skipList.insert_element(1, "hello world");
