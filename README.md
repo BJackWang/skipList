@@ -1,3 +1,2 @@
 # skipList
-##
-$ good for you $
+$$ good \  for \  you $$
